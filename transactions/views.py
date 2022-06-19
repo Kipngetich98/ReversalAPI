@@ -77,3 +77,46 @@ def LNMCallbackUrlView(request):
                             "status_message": "success",
                             "message": "successfully sent a payment request ",
                             'data': None, })
+
+
+#create a reversal request for a transaction view 
+@api_view(["POST"])
+def reversal_view(request):
+    if request.method == "POST":
+        try:
+            mpesa_receipt_number = request.data['mpesa_receipt_number']
+            amount = request.data['amount']
+            transaction_date = request.data['transaction_date']
+            phone_number = request.data['phone_number']
+            transaction_datetime = datetime.strptime(str_transaction_date,"%Y%M%d%H%M%S")
+            #Saving to database
+            try:
+                lnmonline = LNMOnline.objects.create(
+                    CheckoutRequestID = checkout_request_id,
+                    MerchantRequestID = merchant_request_id,
+                    ResultCode = result_code,
+                    ResultDesc = result_description,
+                    MpesaReceiptNumber = mpesa_receipt_number,
+                    Amount = ammount,
+                    Balance = balance,
+                    TransactionDate = transaction_datetime,
+                    PhoneNumber = phone_number
+                )
+                lnmonline.save()
+                print("Saved to database")
+
+            except:
+                return Response({"success": False,
+                                             "errors": [{"Payment Error": "Cannot process payment Request"}],
+                                             "status_code": 1, "status_message": "failed",
+                                             "message": "Cannot process payment request",
+                                             "data": None}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+
+                            "success": True,    
+                            "errors": None,
+                            "status_code": 0,
+                            "status_message": "success",
+                            "message": "successfully sent a payment request ",
+                            'data': None, })
+                            
